@@ -17,6 +17,7 @@ public class BoardGenerator : MonoBehaviour
     [SerializeField] private float _randomSpawnRange = 1;
 
     private List<FigureInfo> _figureInfoes;
+    private bool _isGenerating;
 
     public event Action<int> OnBoardGenerated;
     public event Action OnBoardCleared;
@@ -28,11 +29,21 @@ public class BoardGenerator : MonoBehaviour
 
     public void GenerateBoard()
     {
+        if (_isGenerating)
+        {
+            return;
+        }
+
         GenerateBoard(_figureCount);
     }
 
     public void ReshuffleBoard()
     {
+        if (_isGenerating)
+        {
+            return;
+        }
+        
         GenerateBoard(ActiveFigures.Count);
     }
 
@@ -48,6 +59,7 @@ public class BoardGenerator : MonoBehaviour
 
     private void GenerateBoard(int figureCount)
     {
+        _isGenerating = true;
         ClearBoard();
         Dictionary<FigureInfo, int> typeCounts = CalculateTypeCounts(figureCount);
         List<FigureInfo> shuffledFigures = new();
@@ -101,6 +113,7 @@ public class BoardGenerator : MonoBehaviour
             yield return new WaitForSeconds(_spawnDelay);
         }
 
+        _isGenerating = false;
         OnBoardGenerated?.Invoke(figures.Count);
     }
 
